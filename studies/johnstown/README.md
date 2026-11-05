@@ -43,9 +43,18 @@ If your system adds map layers another way, change those few lines.
 
 Python packages: geopandas, numpy, pandas, requests, rasterio.
 
-## Tested (2026-11-03)
+## Tests
 
-Each skill's example code was run as written against the GeoServer:
+`tests/test_skills.py` runs each skill's example code exactly as written in its `SKILL.md`
+(plus variants: all facility types, two types) and checks the files it writes and the numbers it
+prints. Rerun it after changing a skill or the GeoServer layers (network access needed, about 1 minute):
+
+```bash
+pip install geopandas numpy pandas requests rasterio pytest
+pytest -v studies/johnstown/tests
+```
+
+Results of the first run (2026-11-03):
 
 | Skill | Result | Time |
 |---|---|---|

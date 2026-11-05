@@ -7,6 +7,7 @@ studies/
   <study>/
     README.md        what the study is, how its materials were made and tested
     skills/          agent skills for the study, one folder per skill (SKILL.md)
+    tests/           tests that run each skill's example code and check its results
 ```
 
 ## Studies
