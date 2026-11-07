@@ -1,14 +1,14 @@
 ---
-name: johnstown-nsi-impact
-description: "Use this for questions about buildings, people and property in the simulated Johnstown, PA dam failure: population at risk (day/night, over 65, disabled), students, residential units, value of flooded buildings, building types (hospitals=COM6, schools=EDU1, nursing homes=RES6, mobile homes=RES2, churches=REL1, heavy industry=IND1), FEMA flood zones. Uses the National Structure Inventory 2026 (USACE). No employees, nursing-home residents, basements or own year built, and no dollar damage (only exposure)."
+name: cambria-county-nsi-impact
+description: "Use this for questions about buildings, people and property in the simulated Cambria County South Fork Dam Breach Scenario (Johnstown, PA): population at risk (day/night, over 65, disabled), students, residential units, value of flooded buildings, building types (hospitals=COM6, schools=EDU1, nursing homes=RES6, mobile homes=RES2, churches=REL1, heavy industry=IND1), FEMA flood zones. Uses the National Structure Inventory 2026 (USACE). No employees, nursing-home residents, basements or own year built, and no dollar damage (only exposure)."
 ---
 
-# Johnstown NSI Flood Impact Skill
+# Cambria County NSI Flood Impact Skill
 
 ## Description
 
-Analyzes population exposure and the value of flooded buildings in the **simulated** Johnstown dam
-failure (USACE HEC-RAS 2D, a hypothetical event, not a real flood), using USACE's National Structure
+Analyzes population exposure and the value of flooded buildings in the **simulated** Cambria County dam
+breach (USACE HEC-RAS 2D, a hypothetical event, not a real flood), using USACE's National Structure
 Inventory 2026 (NSI) for the study area. Reads the event's maximum flood depth at each building, then
 aggregates people and building values.
 
@@ -18,7 +18,7 @@ aggregates people and building values.
 The sum of `val_struct + val_cont + val_vehic` of flooded buildings is the **value exposed** to the flood;
 always call it exposure (or "value of flooded buildings"), never damage or losses.
 
-**WFS layer `tiger:Johnstown_NSI2026_5070` (546,719 buildings in 8 counties; 44,113 inside the flood
+**WFS layer `tiger:CambriaCounty_NSI2026_5070` (546,719 buildings in 8 counties; 44,113 inside the flood
 grid). The geometry column is `geom`. Use ONLY these fields (lower case):**
 
 | Field | Description |
@@ -67,14 +67,14 @@ present but not documented by USACE (`depindex`, `crerank`, `creprcnt`, `novehpr
 
 ## When to Use
 
-- User asks how many buildings or people are flooded in the Johnstown dam failure
+- User asks how many buildings or people are flooded in the Cambria County dam breach
 - User asks about population at risk (day / night, elderly, disabled), students, residential units
 - User asks about the value of flooded buildings, or about flooded buildings of a given type
-- User asks for a comprehensive Johnstown flood impact report including people and property
+- User asks for a comprehensive Cambria County flood impact report including people and property
 
 ## Example
 
-### Buildings, people and value exposed to the Johnstown dam failure
+### Buildings, people and value exposed to the Cambria County dam breach
 
 ```python
 import json, os
@@ -88,7 +88,7 @@ from rasterio.io import MemoryFile
 
 OWS = "https://sparcal.sdsc.edu/geoserver/tiger/ows"
 EXTENT = (1419345.95, 2043397.76, 1449566.93, 2066727.97)  # the flood grids, EPSG:5070 metres
-DEPTH = "tiger__Johnstown_Depth_Max_5070"
+DEPTH = "tiger__CambriaCounty_Depth_Max_5070"
 FIELDS = ["fd_id", "occtype", "st_damcat", "bldgtype", "num_story", "sqft", "resunits", "students",
           "pop2amu65", "pop2amo65", "pop2pmu65", "pop2pmo65", "u65disable", "o65disable",
           "val_struct", "val_cont", "val_vehic", "firmzone"]
@@ -134,15 +134,15 @@ def classify(d):
 
 
 # --- Step 1: Add the flood depth WMS layer to the map ---
-with open(os.path.join(temp_dir, "johnstown_flood_depth.wms.json"), "w") as f:
+with open(os.path.join(temp_dir, "cambria_county_flood_depth.wms.json"), "w") as f:
     json.dump({"url": "https://sparcal.sdsc.edu/geoserver/tiger/wms",
-               "layers": "tiger:Johnstown_Depth_Max_5070",
-               "name": "Johnstown Dam Failure: Max Flood Depth (simulated)",
+               "layers": "tiger:CambriaCounty_Depth_Max_5070",
+               "name": "Cambria County Dam Breach: Max Flood Depth (simulated)",
                "opacity": 0.7, "bbox": [40.2168, -79.0759, 40.4701, -78.6732]}, f)
 
 # --- Step 2: Fetch the buildings inside the flood grid (44,113; a few seconds) ---
 wfs_url = (f"{OWS}?service=WFS&version=2.0.0&request=GetFeature"
-           f"&typeNames=tiger:Johnstown_NSI2026_5070&outputFormat=application/json"
+           f"&typeNames=tiger:CambriaCounty_NSI2026_5070&outputFormat=application/json"
            f"&propertyName=geom,{','.join(FIELDS)}"
            f"&bbox={EXTENT[0]},{EXTENT[1]},{EXTENT[2]},{EXTENT[3]},EPSG:5070")
 nsi = gpd.read_file(wfs_url)   # EPSG:5070
@@ -178,15 +178,15 @@ by_sev = flooded.groupby("severity").size().reindex(["Nuisance", "Minor", "Moder
 display = flooded
 cols = ["geometry", "fd_id", "occtype", "st_damcat", "depth_ft", "severity", "pop2amu65", "pop2amo65",
         "pop2pmu65", "pop2pmo65", "students", "resunits", "val_struct", "val_cont", "val_vehic"]
-display[cols].to_crs(epsg=4326).to_file(os.path.join(temp_dir, "johnstown_nsi_flooded.geojson"), driver="GeoJSON")
-print(f"Saved {len(display):,} buildings to map layer johnstown_nsi_flooded")
+display[cols].to_crs(epsg=4326).to_file(os.path.join(temp_dir, "cambria_county_nsi_flooded.geojson"), driver="GeoJSON")
+print(f"Saved {len(display):,} buildings to map layer cambria_county_nsi_flooded")
 
 # --- Step 6: Save tables ---
-by_cat.to_csv(os.path.join(temp_dir, "johnstown_nsi_summary.csv"))
-flooded.drop(columns="geometry").to_csv(os.path.join(temp_dir, "johnstown_nsi_flooded.csv"), index=False)
+by_cat.to_csv(os.path.join(temp_dir, "cambria_county_nsi_summary.csv"))
+flooded.drop(columns="geometry").to_csv(os.path.join(temp_dir, "cambria_county_nsi_flooded.csv"), index=False)
 
 # --- Step 7: Print the report ---
-print("\n=== Johnstown simulated dam failure: buildings and people ===")
+print("\n=== Cambria County simulated dam breach: buildings and people ===")
 print(f"Flooded buildings: {len(flooded):,} of {len(nsi):,} in the flood grid")
 print("By severity:", by_sev.to_dict())
 print("\nPopulation in flooded buildings:")
@@ -214,7 +214,6 @@ print(by_cat.assign(value_M=(by_cat.value_total / 1e6).round(1)).drop(columns="v
 - **Only the flood grid is read**: buildings outside its extent are not fetched; they cannot be flooded in
   this event. Do not fetch all 546,719 buildings of the study area.
 - **Other grids**: depth × velocity, velocity and arrival times can be read the same way with
-  `sample_grid` (coverage ids in johnstown-cikr-impact). Arrival times are model hours whose time zero is
-  not confirmed: never present them as hours after the dam failure.
+  `sample_grid` (coverage ids in cambria-county-cikr-impact). Arrival times are hours after the dam failure (negative: before it).
 - **CRS**: buildings and grids are both EPSG:5070 (metres); reproject the whole GeoDataFrame to EPSG:4326
   for latitude and longitude.
