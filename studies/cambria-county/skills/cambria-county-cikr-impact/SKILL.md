@@ -1,6 +1,6 @@
 ---
 name: cambria-county-cikr-impact
-description: Flood impact of the simulated Cambria County South Fork Dam Breach Scenario (Johnstown, PA) on critical facilities (schools, hospitals, EMS, fire stations, police, prisons, substations, power plants, wastewater plants, airports, terminals, broadcast) with their names and addresses. Use instead of any generic school/hospital/infrastructure skill for Johnstown. Returns flooded facilities by severity, depth, flood force and arrival time.
+description: Flood impact of the simulated Cambria County South Fork Dam Breach Scenario (Cambria County, PA) on critical facilities (schools, hospitals, electric substations, power plants) with their names and addresses. Use instead of any generic school/hospital/infrastructure skill for this study. Returns flooded facilities by severity, depth, flood force and arrival time.
 ---
 
 # Cambria County CIKR Impact Skill
@@ -31,14 +31,15 @@ gives a flow, explain that the Cambria County study has a single dam-failure sce
 
 There is no county, city, capacity, bed count, enrollment or phone field. Do not access other columns.
 
-**Point_Type values:**
-Airports, Broadcast Communication, Colleges and Universities, Correctional Facilities, EMS,
-Electric Power Generation, Electric Substations, Fire Stations, Fire Stations EMS, Heliports, Hospitals,
-Gas-Fired Power Plant, Hydroelectric Power Generation, Intermodal Terminal Facilities, Law Enforcement, Natural Gas Storage,
-Petroleum Terminals, Schools, Wastewater Treatment Plants
+**Point_Type values** (the AidEM team's facilities v3, 2026-11-13: 715 facilities, these four types only):
+Schools (442), Electric Substations (208), Electric Power Generation (40), Hospitals (25)
 
-("Gas-Fired Power Plant" is Franklin Power Ventures, a hypothetical plant the AidEM team added to the
-scenario. Note: "Wastewater Treatment Plants" here, "Waste Water Treatment Plants" in the Kanawha data.)
+Other facility types (fire stations, EMS, police, wastewater plants and so on) are not in this study's
+data: if the user asks about them, say they are not included.
+
+**Hypothetical facilities**, placed by the AidEM team for the scenario: Franklin Power Ventures (Electric
+Power Generation, flooded), Franklin Memorial Medical Center (Hospitals) and Franklin K-12 (Schools, flooded),
+in East Conemaugh and Franklin. Say so whenever one appears in an answer.
 
 **Other values that can be read at each facility (the `GRIDS` dict in the example):**
 | Key | Grid | Units |
@@ -57,7 +58,7 @@ about 9. Report them as hours after the dam failure, and say "before the failure
 ## When to Use
 
 - User asks which / how many facilities are flooded in the Cambria County dam breach
-- User asks "which schools / fire stations / police stations get wet, and how deep?"
+- User asks "which schools / hospitals / power facilities get wet, and how deep?"
 - User asks which facilities get wet first, or how strong the flood is at them
 - User asks for a Cambria County flood impact report on critical infrastructure
 
@@ -148,7 +149,7 @@ with open(os.path.join(temp_dir, "cambria_county_flood_depth.wms.json"), "w") as
                "name": "Cambria County Dam Breach: Max Flood Depth (simulated)",
                "opacity": 0.7, "bbox": [40.2168, -79.0759, 40.4701, -78.6732]}, f)
 
-# --- Step 2: Fetch the facilities inside the flood grid (169 of the study's 2,047) ---
+# --- Step 2: Fetch the facilities inside the flood grid (50 of the study's 715) ---
 wfs_url = (f"{OWS}?service=WFS&version=2.0.0&request=GetFeature"
            f"&typeNames=tiger:CambriaCounty_CIKR_Points_5070&outputFormat=application/json")
 bbox = f"BBOX(the_geom,{EXTENT[0]},{EXTENT[1]},{EXTENT[2]},{EXTENT[3]},'EPSG:5070')"
@@ -203,16 +204,12 @@ flooded.drop(columns="geometry").to_csv(os.path.join(temp_dir, f"cambria_county_
 ## Notes
 
 - **Simulated event**: always call it a simulated (hypothetical) dam failure, never a real flood.
-- **Expected result (all types)**: 24 facilities get wet: 6 schools, 5 fire stations, 3 police
-  departments, 2 EMS, 1 Fire Stations EMS, 2 intermodal terminals (Amtrak station, Greyhound stop),
-  1 hospital (Crichton Rehabilitation Center), 1 prison (Johnstown CCC), 1 broadcast station (WLKJ-FM1),
-  1 wastewater plant (Dornick Point WWTP) and the hypothetical Franklin Power Ventures (10.4 ft). All CIKR
-  electric substations stay dry. 22 of them reach 2 ft, the team's failure criterion (two schools get
-  less than 0.2 ft).
-- **Duplicate**: Forest Hills Area Ambulance Association is listed twice (as EMS and as Fire Stations EMS):
-  count it once when counting distinct places.
+- **Expected result (all types)**: 9 of the 50 facilities in the flood grid get wet: 7 schools (among
+  them the hypothetical Franklin K-12, 5.2 ft), 1 hospital (Crichton Rehabilitation Center, 20.7 ft) and
+  the hypothetical Franklin Power Ventures (10.4 ft). All electric substations stay dry. 7 of the 9 reach
+  2 ft, the team's failure criterion (Forest Hills El Sch and Greater Johnstown MS get about 0.2 ft).
 - **Only the flood grid is read**: facilities outside the grid's extent are not fetched; they cannot be
-  flooded in this event. The study area (8 counties) holds 2,047 facilities in all.
+  flooded in this event. The study area (8 counties) holds 715 facilities in all.
 - **Speed**: about 10 seconds for all facilities (more with each extra grid).
 - **CRS**: CIKR points and grids are both EPSG:5070 (metres); reproject the whole GeoDataFrame
   (`gdf.to_crs(epsg=4326)`), never a single geometry, to print latitude and longitude.

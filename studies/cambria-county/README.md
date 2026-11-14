@@ -1,11 +1,11 @@
 # Cambria County study skills
 
 Skills for the **Cambria County South Fork Dam Breach Scenario**: USACE's simulated dam failure
-upstream of Johnstown, PA (December demo data; not a real event), built like the Kanawha
+in Cambria County, PA (December demo data; not a real event), built like the Kanawha
 skills (`kanawha-flood-depth`, `kanawha-cikr-impact`, `kanawha-nsi-impact`). Each skill (in `skills/`) is one
 `SKILL.md` whose example code reads the study's layers from the SDSC GeoServer
-(`https://sparcal.sdsc.edu/geoserver/tiger`, layers `CambriaCounty_*`, published 2026-11-06 with the
-team's updated facilities), so no data has to be installed.
+(`https://sparcal.sdsc.edu/geoserver/tiger`, layers `CambriaCounty_*`; facilities updated 2026-11-13
+with the team's v3: schools, hospitals and power only), so no data has to be installed.
 
 | Skill | Kanawha counterpart | What it does |
 |---|---|---|
@@ -27,8 +27,9 @@ team's updated facilities), so no data has to be installed.
   damage needs depth-damage functions, which the data does not include.
 - **Arrival times** are hours after the dam failure (negative: before it, from non-failure flows). The
   18 h simulation starts 8.83 h before the failure.
-- **Franklin Power Ventures** (a gas-fired power plant) is hypothetical: the AidEM team added it to the
-  facilities so the scenario includes a flooded power provider.
+- **Facilities: schools, hospitals and power only** (the team's v3). Three are hypothetical, placed by
+  the AidEM team: Franklin Power Ventures (a flooded power plant), Franklin Memorial Medical Center and
+  Franklin K-12.
 - **Only the flood grid is read.** The grids have 0.76 m cells, too large to download whole, so the code
   fetches only facilities and buildings inside the flood grid and reads the grid in 1–2 km tiles
   around them (WCS).
@@ -58,14 +59,14 @@ pip install geopandas numpy pandas requests rasterio pytest
 pytest -v studies/cambria-county/tests
 ```
 
-Results (2026-11-06, `CambriaCounty_*` layers):
+Results (2026-11-14, `CambriaCounty_*` layers, facilities v3):
 
 | Skill | Result | Time |
 |---|---|---|
 | flood-depth | WMS layer shows the flood along the Little Conemaugh, Stonycreek and Conemaugh | instant |
-| cikr-impact, all types | 169 facilities in the flood grid, 24 flooded (with Franklin Power Ventures) | about 6 s |
-| cikr-impact, schools + arrival time | 6 flooded schools | about 6 s |
+| cikr-impact, all types | 50 facilities in the flood grid, 9 flooded (with Franklin Power Ventures and Franklin K-12) | about 6 s |
+| cikr-impact, schools + arrival time | 7 flooded schools | about 6 s |
 | nsi-impact | 44,113 buildings in the grid, 2,588 flooded; 5,752 people at night, 14,367 by day | about 33 s |
 
-These match the cascade analysis (24 wet facilities; 2,587 buildings: one building at the flood's edge
+These match the cascade analysis (9 wet facilities; 2,587 buildings: one building at the flood's edge
 differs because the GeoServer grids were reprojected to EPSG:5070).

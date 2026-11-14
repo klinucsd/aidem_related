@@ -1,6 +1,6 @@
 ---
 name: cambria-county-nsi-impact
-description: "Use this for questions about buildings, people and property in the simulated Cambria County South Fork Dam Breach Scenario (Johnstown, PA): population at risk (day/night, over 65, disabled), students, residential units, value of flooded buildings, building types (hospitals=COM6, schools=EDU1, nursing homes=RES6, mobile homes=RES2, churches=REL1, heavy industry=IND1), FEMA flood zones. Uses the National Structure Inventory 2026 (USACE). No employees, nursing-home residents, basements or own year built, and no dollar damage (only exposure)."
+description: "Use this for questions about buildings, people and property in the simulated Cambria County South Fork Dam Breach Scenario (Cambria County, PA): population at risk (day/night, over 65, disabled), students, residential units, value of flooded buildings, building types (hospitals=COM6, schools=EDU1, nursing homes=RES6, mobile homes=RES2, churches=REL1, heavy industry=IND1), FEMA flood zones. Uses the National Structure Inventory 2026 (USACE). No employees, nursing-home residents, basements or own year built, and no dollar damage (only exposure)."
 ---
 
 # Cambria County NSI Flood Impact Skill

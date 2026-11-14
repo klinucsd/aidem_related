@@ -1,6 +1,6 @@
 ---
 name: cambria-county-flood-depth
-description: Display the maximum flood depth of the simulated Cambria County South Fork Dam Breach Scenario (Johnstown, PA) (USACE HEC-RAS 2D, not a real event) as a map layer served from GeoServer WMS. Use when the user asks to show the Cambria County flood, flood area or flood depth.
+description: Display the maximum flood depth of the simulated Cambria County South Fork Dam Breach Scenario (Cambria County, PA) (USACE HEC-RAS 2D, not a real event) as a map layer served from GeoServer WMS. Use when the user asks to show the Cambria County flood, flood area or flood depth.
 ---
 
 # Cambria County Flood Depth Skill
@@ -16,7 +16,7 @@ event. If the user gives a flow, explain that the Cambria County study has a sin
 
 - Grid: maximum depth above the ground, in feet, at 2.5 ft (0.762 m) cells
 - Flood extent: about 30 km along the South Fork Little Conemaugh, the Little Conemaugh, the Stonycreek
-  and the Conemaugh rivers through Johnstown (Cambria County, PA)
+  and the Conemaugh rivers (Cambria County, PA)
 - The style on GeoServer uses the same depth classes and colours as the Kanawha layers
 
 ## When to Use
