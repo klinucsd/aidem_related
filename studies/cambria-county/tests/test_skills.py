@@ -9,7 +9,7 @@ Usage (needs network access to sparcal.sdsc.edu; about 1 minute in all):
     pytest -v studies/cambria-county/tests          # or: python studies/cambria-county/tests/test_skills.py
 
 Expected values come from the cascade analysis of USACE's original grids (9 facilities wet with the
-team's facilities v3, among them the hypothetical Franklin Power Ventures and Franklin K-12; 2,587
+team's facilities v4, among them the hypothetical Franklin Power Ventures and Franklin K-12; 2,587
 buildings wet). The GeoServer grids were reprojected to EPSG:5070, so one building at the flood's
 edge comes out wet here too: buildings are checked within a small tolerance.
 """
@@ -88,12 +88,13 @@ def test_cikr_all_types(tmp_path):
     code = example("cambria-county-cikr-impact")
     code = code.replace('filter_type = "Schools"', "filter_type = None").replace('extra = ["arrival_wet_h"]', "extra = []")
     out = run(code, tmp_path)
-    assert number(r"Facilities in the flood grid: (\d+)", out) == 50
+    assert number(r"Facilities in the flood grid: (\d+)", out) == 51
     flooded = pd.read_csv(tmp_path / "cambria_county_all_cikr_flooded.csv")
     assert len(flooded) == 9
     expected = {"Schools": 7, "Hospitals": 1, "Electric Power Generation": 1}
     assert flooded.Point_Type.value_counts().to_dict() == expected
     assert "Electric Substations" not in set(flooded.Point_Type)   # all CIKR substations stay dry
+    assert "Water Treatment" not in set(flooded.Point_Type)        # the team's water plant stays dry
     deepest = flooded.sort_values("depth_ft").iloc[-1]
     assert deepest.NAME == "CRICHTON REHABILITATION CENTER" and abs(deepest.depth_ft - 20.75) < 0.5
     school = flooded[flooded.NAME == "Franklin K-12"].iloc[0]   # the team's hypothetical school

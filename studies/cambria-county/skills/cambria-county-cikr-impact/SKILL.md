@@ -31,15 +31,17 @@ gives a flow, explain that the Cambria County study has a single dam-failure sce
 
 There is no county, city, capacity, bed count, enrollment or phone field. Do not access other columns.
 
-**Point_Type values** (the AidEM team's facilities v3, 2026-11-13: 715 facilities, these four types only):
-Schools (442), Electric Substations (208), Electric Power Generation (40), Hospitals (25)
+**Point_Type values** (the AidEM team's facilities v4, 2026-11-20: 716 facilities, these five types only):
+Schools (442), Electric Substations (208), Electric Power Generation (40), Hospitals (25), Water Treatment (1)
 
 Other facility types (fire stations, EMS, police, wastewater plants and so on) are not in this study's
-data: if the user asks about them, say they are not included.
+data: if the user asks about them, say they are not included. The only drinking water facility is the
+hypothetical Franklin Water Utilities.
 
 **Hypothetical facilities**, placed by the AidEM team for the scenario: Franklin Power Ventures (Electric
-Power Generation, flooded), Franklin Memorial Medical Center (Hospitals) and Franklin K-12 (Schools, flooded),
-in East Conemaugh and Franklin. Say so whenever one appears in an answer.
+Power Generation, Franklin; flooded), Franklin K-12 (Schools, East Conemaugh; flooded), Franklin Water
+Utilities (Water Treatment, East Conemaugh; dry) and Franklin Memorial Medical Center (Hospitals, Middle
+Taylor Township; dry). Say so whenever one appears in an answer.
 
 **Other values that can be read at each facility (the `GRIDS` dict in the example):**
 | Key | Grid | Units |
@@ -149,7 +151,7 @@ with open(os.path.join(temp_dir, "cambria_county_flood_depth.wms.json"), "w") as
                "name": "Cambria County Dam Breach: Max Flood Depth (simulated)",
                "opacity": 0.7, "bbox": [40.2168, -79.0759, 40.4701, -78.6732]}, f)
 
-# --- Step 2: Fetch the facilities inside the flood grid (50 of the study's 715) ---
+# --- Step 2: Fetch the facilities inside the flood grid (51 of the study's 716) ---
 wfs_url = (f"{OWS}?service=WFS&version=2.0.0&request=GetFeature"
            f"&typeNames=tiger:CambriaCounty_CIKR_Points_5070&outputFormat=application/json")
 bbox = f"BBOX(the_geom,{EXTENT[0]},{EXTENT[1]},{EXTENT[2]},{EXTENT[3]},'EPSG:5070')"
@@ -204,12 +206,12 @@ flooded.drop(columns="geometry").to_csv(os.path.join(temp_dir, f"cambria_county_
 ## Notes
 
 - **Simulated event**: always call it a simulated (hypothetical) dam failure, never a real flood.
-- **Expected result (all types)**: 9 of the 50 facilities in the flood grid get wet: 7 schools (among
+- **Expected result (all types)**: 9 of the 51 facilities in the flood grid get wet: 7 schools (among
   them the hypothetical Franklin K-12, 5.2 ft), 1 hospital (Crichton Rehabilitation Center, 20.7 ft) and
-  the hypothetical Franklin Power Ventures (10.4 ft). All electric substations stay dry. 7 of the 9 reach
+  the hypothetical Franklin Power Ventures (10.4 ft). All electric substations and the water plant stay dry. 7 of the 9 reach
   2 ft, the team's failure criterion (Forest Hills El Sch and Greater Johnstown MS get about 0.2 ft).
 - **Only the flood grid is read**: facilities outside the grid's extent are not fetched; they cannot be
-  flooded in this event. The study area (8 counties) holds 715 facilities in all.
+  flooded in this event. The study area (8 counties) holds 716 facilities in all.
 - **Speed**: about 10 seconds for all facilities (more with each extra grid).
 - **CRS**: CIKR points and grids are both EPSG:5070 (metres); reproject the whole GeoDataFrame
   (`gdf.to_crs(epsg=4326)`), never a single geometry, to print latitude and longitude.
